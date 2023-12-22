@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2023 RST Cloud Pty Ltd
 """Python library for accessing RST Cloud API."""
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 __author__ = "RST Cloud Pty Ltd"
 
 from .ioclookup import ioclookup  # noqa

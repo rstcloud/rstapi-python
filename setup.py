@@ -26,10 +26,7 @@ setup(
     packages=["rstapi"],
     keywords=["threat intelligence", "RST Cloud", "IoC lookup", "Whois API"],
     install_requires=[
-        "requests",
-        "os",
-        "time",
-        "zlib",
+        "requests"
     ],
     package_data={
         "": ["*.md", "LICENSE"],
