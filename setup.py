@@ -21,7 +21,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/rstcloud/rstapi-python",
     author="RST Cloud Pty Ltd",
-    author_email=["support@rstcloud.net", "ysergeev@rstcloud.net"],
+    author_email="support@rstcloud.net, ysergeev@rstcloud.net",
     license="MIT",
     packages=["rstapi"],
     keywords=["threat intelligence", "RST Cloud", "IoC lookup", "Whois API"],
