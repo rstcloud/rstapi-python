@@ -16,10 +16,13 @@ rst_threatfeed = threatfeed(APIKEY=USER_APIKEY)
 
 # args: ioctype, filetype="csv|json", compressed=True|False,
 # fdate="latest|yyyymmdd", path="path_to_your_output_file"
-file = rst_threatfeed.GetFeed(ioctype="hash", filetype="csv")
+print("Downloading...")
+file = rst_threatfeed.GetFeed(ioctype="url", filetype="csv")
 pprint(file)
 if "status" in file and file["status"] == "ok":
+    print(f"File {file['message']} downloaded.")
     os.remove(file["message"])
+    print(f"File {file['message']} removed.")
 
 # # # # # # # # # # # # # #
 # --- RST IoC Lookup ---  #
@@ -56,7 +59,7 @@ token = rst_noisecontrol.BatchLookup(ioctype=ioc_type, data=data)
 pprint(token)
 
 # args: ioctype, token, attempts=5, timeout=1
-result = rst_noisecontrol.BatchResult(ioctype=ioc_type, token=token)
+result = rst_noisecontrol.BatchResult(ioctype=ioc_type, token=token, attempts=2)
 pprint(result)
 
 # # # # # # # # # # # # # #

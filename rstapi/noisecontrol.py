@@ -1,46 +1,83 @@
-# Copyright 2023 RST Cloud Pty Ltd
+# Copyright 2024 RST Cloud Pty Ltd
 
 import os
-import time
-
-import requests
+from .api import _make_request
 
 
 class noisecontrol(object):
-    def __init__(self, APIKEY="", APIURL="https://api.rstcloud.net/v1"):
+    def __init__(
+        self,
+        APIKEY="",
+        APIURL="https://api.rstcloud.net/v1",
+        CONNECT=10,
+        READ=20,
+        VERIFY=True,
+        MAX_RETRIES=1,
+    ):
         self.APIKEY = os.environ.get("RST_API_KEY", APIKEY)
-        self.API_URL = os.environ.get("RST_API_URL", APIURL)
+        self.APIURL = os.environ.get("RST_API_URL", APIURL)
+        self.CONNECT = os.environ.get("RST_CONNECT_TIMEOUT", CONNECT)
+        self.READ = os.environ.get("RST_READ_TIMEOUT", READ)
+        self.VERIFY = os.environ.get("RST_SSL_VERIFY", VERIFY)
+        self.MAX_RETRIES = os.environ.get("RST_MAX_RETRIES", MAX_RETRIES)
 
     def ValueLookup(self, value):
         endpoint = "/benign/lookup"
-        apiurl = self.API_URL + endpoint + "?value=" + value
+        apiurl = self.APIURL + endpoint + "?value=" + value
         headers = {"Accept": "*/*", "X-Api-Key": self.APIKEY}
-        r = requests.get(apiurl, headers=headers)
-        return r.json()
+        r = _make_request(
+            self,
+            "GET",
+            apiurl,
+            headers,
+            None,
+            self.CONNECT,
+            self.READ,
+            self.VERIFY,
+            self.MAX_RETRIES,
+        )
+        if "message" in r:
+            return r
+        else:
+            return r.json()
 
     def BatchLookup(self, ioctype, data):
         endpoint = f"/benign/batch/{ioctype}"
-        apiurl = self.API_URL + endpoint
-        payload = data
+        apiurl = self.APIURL + endpoint
         headers = {"Accept": "*/*", "X-Api-Key": self.APIKEY}
-        r = requests.post(apiurl, data=payload, headers=headers)
-        return r.json()
+        r = _make_request(
+            self,
+            "POST",
+            apiurl,
+            headers,
+            data,
+            self.CONNECT,
+            self.READ,
+            self.VERIFY,
+            self.MAX_RETRIES,
+        )
+        if "message" in r:
+            return r
+        else:
+            return r.json()
 
-    def BatchResult(self, ioctype, token, attempts=5, timeout=1):
+    def BatchResult(self, ioctype, token, attempts=5, timeout=1, retry=True):
         endpoint = f"/benign/result/{ioctype}"
-        apiurl = self.API_URL + endpoint
+        apiurl = self.APIURL + endpoint
         headers = {"Accept": "*/*", "X-Api-Key": self.APIKEY}
-        n = 0
-        while n < attempts:
-            r = requests.post(apiurl, json=token, headers=headers)
-            if r.status_code == 200:
-                # got the results
-                return r.json()
-            elif r.status_code == 301:
-                # retry later
-                time.sleep(timeout)
-                n += 1
-            else:
-                # error
-                return r.json()
-        return {"status": "error", "message": "Timed out"}
+        r = _make_request(
+            self,
+            "POST",
+            apiurl,
+            headers,
+            token,
+            self.CONNECT,
+            self.READ,
+            self.VERIFY,
+            attempts,
+            retrycode=301,
+        )
+        if "message" in r:
+            return r
+        else:
+            return r.json()
