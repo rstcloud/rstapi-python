@@ -5,8 +5,27 @@ import requests
 from requests.exceptions import RequestException, Timeout, ConnectionError, HTTPError
 
 
+def _timeout(timeout, attempt):
+    attempt += 1
+    if timeout > 0:
+        time.sleep(timeout)
+    else:
+        time.sleep(1 + attempt)  # Backoff
+    return attempt
+
+
 def _make_request(
-    self, method, url, headers, data, connect, read, verify, max_retries, retrycode=400, timeout=0
+    self,
+    method,
+    url,
+    headers,
+    data,
+    connect,
+    read,
+    verify,
+    max_retries,
+    retrycode=429,
+    timeout=0,
 ):
     """Helper function to make a request with retry logic."""
     attempt = 0
@@ -34,20 +53,19 @@ def _make_request(
                 )
             else:  # Default to GET
                 r = requests.get(**request_params)
-            r.raise_for_status()  # Raise an HTTPError for bad responses
-            return r  # Return the full response for successful requests
+            if r.status_code != retrycode:
+                r.raise_for_status()  # Raise an HTTPError for bad responses
+                return r  # Return the full response for successful requests
+            else:
+                attempt = _timeout(timeout, attempt)
 
         except (Timeout, ConnectionError) as e:
-            attempt += 1
-            if timeout > 0:
-                time.sleep(timeout)
-            else:
-                time.sleep(1 + attempt)  # Backoff
+            attempt = _timeout(timeout, attempt)
 
         except HTTPError as e:
             error_response = (
                 r.json()
-                if r.status_code >= retrycode
+                if r.status_code >= 400
                 else {"status": "error", "message": r.text}
             )
             if "message" not in error_response and "error" in error_response:
