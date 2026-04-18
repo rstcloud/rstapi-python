@@ -6,6 +6,8 @@ Python 3 library for using the various threat intelligence RST Cloud APIs:
  - RST Noise Control
  - RST IoC Lookup
  - RST Whois API
+ - RST Scan API (Cobalt Strike beacon, SSL certificate, favicon, HTML body/JS, screenshots)
+ - Connectivity (`/auth/check` — API key validation and request quota / remaining usage)
 
 ## Installation
 
@@ -33,7 +35,7 @@ However, you can explicitly pass a token in the api client constructor:
 
 ```
 import rstapi
-c = rstapi.ioclookup(APIKEY="YOU_API_KEY")
+c = rstapi.ioclookup(APIKEY="YOUR_API_KEY")
 c.GetIndicator("1.1.1.1")
 ```
 
@@ -71,6 +73,23 @@ An API to check individual values if they are a suspicious or malicious indicato
 Ideal for real-time checks in SOAR or be integration into custom applications for online user connection scrutiny.
 
 Read more: https://www.rstcloud.com/rst-ioc-lookup/
+
+### RST Scan API
+
+Scan external targets for Cobalt Strike beacons, SSL certificates, favicons, HTML content and JavaScript, and page screenshots (first frame, full page, last frame). All operations use public URLs or IP:port targets as documented in the [RST Cloud API](https://www.rstcloud.com/api-docs/).
+
+```python
+import rstapi
+s = rstapi.scan()
+s.GetSslCertificate("198.51.100.1:443")
+s.GetHtmlScreenshotFirst("https://example.com", path="shot.png")  # decodes image_base64 to shot.png
+```
+
+```python
+import rstapi
+q = rstapi.connectivity().CheckApiKey()
+remaining = q.get("quota", {}).get("remaining")  # requests left in the current period
+```
 
 ### RST Whois API
 
