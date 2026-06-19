@@ -1,3 +1,10 @@
+1.2.0 (2026-06-19)
+------------------
+
+- **`threatobjects` client** (`rstapi.threatobjects`) for the **RST Threat Library**: `GET /threat-objects/{object_type}` over `intrusion-sets`, `malware`, `tools`, and `campaigns`. `GetThreatObjects(object_type, ...)` supports `limit`/`offset` pagination, single lookups via `id`/`name`, `filter` search expressions, and sorting (`orderBy` = `created_at`/`modified`/`updated_at`, `orderMode` = `asc`/`desc`). Convenience helpers `GetThreatObjectById` / `GetThreatObjectByName`.
+- **Threat Library pagination helper**: `IterThreatObjects(object_type, page_size=100, ...)` is a generator that walks every page (stopping on `total` or a short page) and raises on an API error so callers never silently truncate. Tolerant of `{"data": [...], "total": N}`, bare-list, and `{"objects": [...]}` response shapes. Constructor and environment variables (`APIKEY`, `APIURL`, `RST_API_KEY`, timeouts, `RST_SSL_VERIFY`) match the other clients; query params and the object-type path segment are URL-encoded.
+
+
 1.1.0 (2026-04-09)
 ------------------
 

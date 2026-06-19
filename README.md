@@ -3,6 +3,7 @@
 Python 3 library for using the various threat intelligence RST Cloud APIs:
  - RST Threat Feed
  - RST Report Hub
+ - RST Threat Library (threat objects: intrusion-sets, malware, tools, campaigns)
  - RST Noise Control
  - RST IoC Lookup
  - RST Whois API
@@ -57,6 +58,27 @@ An electronic library of threat reports from hundreds of security companies, ind
 These reports undergo transformation from human-readable formats to machine-readable ones, including STIX 2.1. Extensive multilingual translation, archiving as PDFs, and summarization are conducted. Key data, encompassing threat actors, names, software, CVEs, geolocation, industry, etc., is automatically extracted, with due credit to the original report author.
 
 Read more: https://www.rstcloud.com/rst-report-hub/
+
+### RST Threat Library
+
+A curated knowledge base of threat objects — intrusion sets (threat actors / activity groups), malware families, tools, and campaigns — with synonyms, references, and context. Ideal for populating MISP galaxies, OpenCTI knowledge, or your own TIP.
+
+```python
+import rstapi
+tl = rstapi.threatobjects()
+
+# one page, with filtering / sorting
+tl.GetThreatObjects("malware", limit=50, orderBy="modified", orderMode="desc")
+
+# a single object
+tl.GetThreatObjectByName("intrusion-sets", "APT28")
+
+# walk the whole set (paginates internally)
+for obj in tl.IterThreatObjects("campaigns"):
+    print(obj.get("name"))
+```
+
+Object types: `intrusion-sets`, `malware`, `tools`, `campaigns`.
 
 ### RST Noise Control
 
